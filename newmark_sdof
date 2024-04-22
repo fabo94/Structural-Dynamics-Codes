@@ -1,0 +1,46 @@
+% Function to calculate the response of Single degree of freedom system to 
+% a arbitrary (random/any) force.
+% Inputs:
+% m mass of the system
+% k stiffness of the system
+% xi daming ratio
+% t time vector
+% F force time series vector. 
+% u0 initial displacement
+% ud0 initial velocity
+% Outputs
+% u displacement time series
+% ud velocity time series
+% udd acceleration time series
+% gamma - parameter, usually = 0.5
+% beta - parameter, usually = 0.25
+function [u,ud,udd] = newmark_sdof(m, k, xi, t, F, u0, ud0,gamma,beta)
+% 1. Initial calculations
+dt      = t(2)-t(1);
+cr      = 2*(k*m)^0.5;
+c       = xi*cr;
+p0      = F(1);
+udd0  = (p0-c*ud0-k*u0)/m;
+kh      = k + gamma/(beta*dt)*c+1*m/(beta*dt^2);
+a       = m/(beta*dt)+gamma*c/beta;
+b       = m/(2*beta)+c*dt*(-1+gamma/(2*beta));
+% 2. Calculations for each time step 
+% Initialize zero vector
+u   = zeros(size(t));
+ud  = u;
+udd = u;
+% Initial conditions
+u(1)   = u0;
+ud(1)  = ud0;
+udd(1) = udd0;
+for i = 1:length(t)-1
+    dp   = F(i+1)-F(i);
+    dph  = dp+a*ud(i)+b*udd(i);
+    dui  = dph/kh;
+    dud  = gamma*dui/(beta*dt) - gamma*ud(i)/beta+dt*udd(i)*(1-gamma/(2*beta));
+    dudd = dui/(beta*dt^2) - ud(i)/(beta*dt) - udd(i)/(2*beta);
+    u(i+1) = u(i) + dui;
+    ud(i+1) = ud(i) + dud;
+    udd(i+1) = udd(i) + dudd;
+end
+end
