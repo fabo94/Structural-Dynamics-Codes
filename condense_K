@@ -1,0 +1,16 @@
+% Function to calculate the condensed stiffness matrix
+% Inputs:
+% K: is a matrix that represents the stiffness matrix
+% p: vector that contains the DoF considered as primary
+% s: vector that contains the DoF considered as secondary
+% Outputs:
+% Ke: condensed stifness matrix
+function Ke = condense_K(K,p,s)
+% We split the matrix
+Ktt = K(p,p);
+Kt0 = K(p,s);
+K0t = K(s,p);
+K00 = K(s,s);
+% We compute the condensed or equivalent matrix
+Ke = Ktt - Kt0*inv(K00)*K0t;
+end
